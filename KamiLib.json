@@ -1,0 +1,13 @@
+{
+    "Author": "MidoriKami",
+    "Name": "KamiLib",
+    "Punchline": "Fork of KamiLib from MidoriKami",
+    "Description": "Fork of KamiLib from MidoriKami",
+    "ApplicableVersion": "any",
+    "LoadPriority": 0,
+    "InternalName": "KamiLib",
+    "AssemblyVersion": "1.2.1.0",
+    "RepoUrl": "https://github.com/Felscream/KamiLib",
+    "Tags": [],
+    "DalamudApiLevel": 11
+}

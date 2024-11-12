@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib.Caching;
 using Lumina.Excel.GeneratedSheets;
 
@@ -9,7 +10,7 @@ public static class Condition
 {
     public static bool IsBoundByDuty()
     {
-        if(IsInIslandSanctuary()) return false;
+        if (IsInIslandSanctuary()) return false;
 
         return Service.Condition[ConditionFlag.BoundByDuty] ||
                Service.Condition[ConditionFlag.BoundByDuty56] ||
@@ -27,7 +28,7 @@ public static class Condition
                Service.Condition[ConditionFlag.WatchingCutscene] ||
                Service.Condition[ConditionFlag.WatchingCutscene78];
     }
-    
+
     public static bool IsInQuestEvent()
     {
         if (IsInIslandSanctuary() && IsIslandDoingSomethingMode()) return false;
@@ -45,11 +46,11 @@ public static class Condition
     {
         var territoryInfo = LuminaCache<TerritoryType>.Instance.GetRow(Service.ClientState.TerritoryType);
         if (territoryInfo is null) return false;
-        
+
         // Island Sanctuary
         return territoryInfo.TerritoryIntendedUse == 49;
     }
-    
+
     public static bool IsCrafting()
     {
         return Service.Condition[ConditionFlag.Crafting] ||
@@ -61,16 +62,16 @@ public static class Condition
         return Service.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance];
     }
 
-    public static bool IsInSanctuary()
+    public static unsafe bool IsInSanctuary()
     {
-        return GameMain.IsInSanctuary();
+        return TerritoryInfo.Instance()->InSanctuary;
     }
 
     public static bool CheckFlag(ConditionFlag flag)
     {
         return Service.Condition[flag];
     }
-    
+
     public static bool IsGathering()
     {
         return Service.Condition[ConditionFlag.Gathering] ||
