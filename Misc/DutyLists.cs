@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud;
 using Dalamud.Game;
 using KamiLib.Caching;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace KamiLib.Misc;
 
@@ -26,7 +25,7 @@ public class DutyLists
     public List<uint> Alliance { get; }
     public List<uint> LimitedAlliance { get; }
     public List<uint> LimitedSavage { get; }
-    
+
     private static DutyLists? _instance;
     public static DutyLists Instance => _instance ??= new DutyLists();
 
@@ -34,51 +33,55 @@ public class DutyLists
     {
         // ContentType.Row 5 == Raids
         Savage = LuminaCache<ContentFinderCondition>.Instance.OfLanguage(ClientLanguage.English)
-            .Where(t => t.ContentType.Row == 5)
-            .Where(t => t.Name.RawString.Contains("Savage"))
-            .Select(r => r.TerritoryType.Row)
-            .ToList();
-        
+                                                    .Where(t => t.ContentType.RowId == 5)
+                                                    .Where(t => t.Name.ToString().Contains("Savage"))
+                                                    .Select(r => r.TerritoryType.RowId)
+                                                    .ToList();
+
         // ContentType.Row 28 == Ultimate Raids
         Ultimate = LuminaCache<ContentFinderCondition>.Instance
-            .Where(t => t.ContentType.Row == 28)
-            .Select(t => t.TerritoryType.Row)
-            .ToList();
-        
+                                                      .Where(t => t.ContentType.RowId == 28)
+                                                      .Select(t => t.TerritoryType.RowId)
+                                                      .ToList();
+
         // ContentType.Row 4 == Trials
         ExtremeUnreal = LuminaCache<ContentFinderCondition>.Instance.OfLanguage(ClientLanguage.English)
-            .Where(t => t.ContentType.Row == 4)
-            .Where(t => t.Name.RawString.Contains("Extreme") || t.Name.RawString.Contains("Unreal") || t.Name.RawString.Contains("The Minstrel"))
-            .Select(t => t.TerritoryType.Row)
-            .ToList();
+                                                           .Where(t => t.ContentType.RowId == 4)
+                                                           .Where(t => t.Name.ToString().Contains("Extreme") ||
+                                                                       t.Name.ToString().Contains("Unreal") ||
+                                                                       t.Name.ToString().Contains("The Minstrel"))
+                                                           .Select(t => t.TerritoryType.RowId)
+                                                           .ToList();
 
         Criterion = LuminaCache<ContentFinderCondition>.Instance
-            .Where(row => row.ContentType.Row is 30)
-            .Select(row => row.TerritoryType.Row)
-            .ToList();
-        
+                                                       .Where(row => row.ContentType.RowId is 30)
+                                                       .Select(row => row.TerritoryType.RowId)
+                                                       .ToList();
+
         Alliance = LuminaCache<TerritoryType>.Instance
-            .Where(r => r.TerritoryIntendedUse is 8)
-            .Select(r => r.RowId)
-            .ToList();
-        
+                                             .Where(r => r.TerritoryIntendedUse.RowId is 8)
+                                             .Select(r => r.RowId)
+                                             .ToList();
+
         var instanceContents = LuminaCache<InstanceContent>.Instance
-            .Where(instance => instance.WeekRestriction == 1)
-            .Select(instance => instance.RowId);
-        
+                                                           .Where(instance => instance.WeekRestriction == 1)
+                                                           .Select(instance => instance.RowId);
+
         LimitedAlliance = LuminaCache<ContentFinderCondition>.Instance
-            .Where(cfc => instanceContents.Contains(cfc.Content))
-            .Where(cfc => cfc.TerritoryType.Value?.TerritoryIntendedUse is 8)
-            .Select(cfc => cfc.TerritoryType.Row)
-            .ToList();
-        
+                                                             .Where(cfc => instanceContents.Contains(cfc.Content.RowId))
+                                                             .Where(cfc => cfc.TerritoryType.Value.TerritoryIntendedUse
+                                                                              .RowId is 8)
+                                                             .Select(cfc => cfc.TerritoryType.RowId)
+                                                             .ToList();
+
         LimitedSavage = LuminaCache<ContentFinderCondition>.Instance.OfLanguage(ClientLanguage.English)
-            .Where(cfc => instanceContents.Contains(cfc.Content))
-            .Where(cfc => cfc.TerritoryType.Value?.TerritoryIntendedUse is 17)
-            .Where(cfc => !cfc.Name.RawString.Contains("Ultimate"))
-            .OrderByDescending(cfc => cfc.SortKey)
-            .Select(cfc => cfc.TerritoryType.Row)
-            .ToList();
+                                                           .Where(cfc => instanceContents.Contains(cfc.Content.RowId))
+                                                           .Where(cfc => cfc.TerritoryType.Value.TerritoryIntendedUse
+                                                                            .RowId is 17)
+                                                           .Where(cfc => !cfc.Name.ToString().Contains("Ultimate"))
+                                                           .OrderByDescending(cfc => cfc.SortKey)
+                                                           .Select(cfc => cfc.TerritoryType.RowId)
+                                                           .ToList();
     }
 
     private DutyType GetDutyType(uint dutyId)
@@ -91,7 +94,7 @@ public class DutyLists
 
         return DutyType.None;
     }
-    
+
     public bool IsType(uint dutyId, DutyType type) => GetDutyType(dutyId) == type;
     public bool IsType(uint dutyId, IEnumerable<DutyType> types) => types.Any(type => IsType(dutyId, type));
 }

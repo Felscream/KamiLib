@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using KamiLib.Caching;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace KamiLib.Misc;
 
@@ -10,8 +10,8 @@ public static class Time
     public static DateTime NextDailyReset()
     {
         var now = DateTime.UtcNow;
-            
-        if( now.Hour < 15 )
+
+        if (now.Hour < 15)
         {
             return now.Date.AddHours(15);
         }
@@ -34,9 +34,9 @@ public static class Time
     public static DateTime NextGrandCompanyReset()
     {
         var now = DateTime.UtcNow;
-        var targetHour = 20;    
-        
-        if( now.Hour < targetHour )
+        var targetHour = 20;
+
+        if (now.Hour < targetHour)
         {
             return now.Date.AddHours(targetHour);
         }
@@ -45,14 +45,14 @@ public static class Time
             return now.AddDays(1).Date.AddHours(targetHour);
         }
     }
-    
+
     public static DateTime NextLeveAllowanceReset()
     {
         var now = DateTime.UtcNow;
 
-        if( now.Hour < 12 )
+        if (now.Hour < 12)
         {
-            return now.Date.AddHours(12);   
+            return now.Date.AddHours(12);
         }
         else
         {
@@ -63,8 +63,8 @@ public static class Time
     public static DateTime NextDayOfWeek(DayOfWeek weekday, int hour)
     {
         var today = DateTime.UtcNow;
-            
-        if(today.Hour < hour && today.DayOfWeek == weekday)
+
+        if (today.Hour < hour && today.DayOfWeek == weekday)
         {
             return today.Date.AddHours(hour);
         }
@@ -76,14 +76,14 @@ public static class Time
             {
                 nextReset = nextReset.AddDays(1);
             }
-                
+
             return nextReset.Date.AddHours(hour);
         }
     }
 
     public static DateTime NextJumboCactpotReset()
     {
-        var region = LookupDatacenterRegion(Service.ClientState.LocalPlayer?.HomeWorld.GameData?.DataCenter.Row);
+        var region = LookupDatacenterRegion(Service.ClientState.LocalPlayer?.HomeWorld.Value.DataCenter.RowId);
 
         return region switch
         {
@@ -109,8 +109,8 @@ public static class Time
         if (playerDatacenterID == null) return 0;
 
         return LuminaCache<WorldDCGroupType>.Instance
-            .Where(world => world.RowId == playerDatacenterID.Value)
-            .Select(dc => dc.Region)
-            .FirstOrDefault();
+                                            .Where(world => world.RowId == playerDatacenterID.Value)
+                                            .Select(dc => dc.Region)
+                                            .FirstOrDefault();
     }
 }

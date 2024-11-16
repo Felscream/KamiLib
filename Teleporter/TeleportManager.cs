@@ -11,7 +11,7 @@ using KamiLib.Caching;
 using KamiLib.ChatCommands;
 using KamiLib.Localization;
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace KamiLib.Teleporter;
 
@@ -19,16 +19,16 @@ public class TeleportInfo
 {
     public uint CommandID { get; }
     public Enum Target { get; }
-    public Aetheryte Aetherite { get; }
-    
+    public AetheryteTransient? Aetherite { get; }
+
     public TeleportInfo(uint commandID, Enum target, uint aetheriteID)
     {
         CommandID = commandID;
         Target = target;
         Aetherite = GetAetheryte(aetheriteID);
     }
-    
-    private static Aetheryte GetAetheryte(uint id) => LuminaCache<Aetheryte>.Instance.GetRow(id)!;
+
+    private static AetheryteTransient? GetAetheryte(uint id) => LuminaCache<AetheryteTransient>.Instance.GetRow(id)!;
 }
 
 public record TeleportLinkPayloads(Enum Location, DalamudLinkPayload Payload);
@@ -37,7 +37,7 @@ public class TeleportManager : IDisposable
 {
     private static TeleportManager? _instance;
     public static TeleportManager Instance => _instance ??= new TeleportManager();
-    
+
     private readonly ICallGateSubscriber<uint, byte, bool> teleportIpc;
     private readonly ICallGateSubscriber<bool> showChatMessageIpc;
 
@@ -55,7 +55,7 @@ public class TeleportManager : IDisposable
     {
         _instance?.Dispose();
     }
-    
+
     public void Dispose()
     {
         foreach (var payload in teleportInfoList)
@@ -67,7 +67,7 @@ public class TeleportManager : IDisposable
     public void AddTeleports(IEnumerable<TeleportInfo> teleports)
     {
         teleportInfoList.AddRange(teleports);
-        
+
         foreach (var teleport in teleportInfoList)
         {
             Service.PluginInterface.RemoveChatLinkHandler(teleport.CommandID);
@@ -111,7 +111,8 @@ public class TeleportManager : IDisposable
             }
             else if (showMessage)
             {
-                Chat.Print(Strings.Teleport_Label, string.Format(Strings.Teleport_TeleportingTo, GetAetheryteName(aetheryte)));
+                Chat.Print(Strings.Teleport_Label,
+                           string.Format(Strings.Teleport_TeleportingTo, GetAetheryteName(aetheryte)));
             }
         }
         catch (IpcNotReadyError)
@@ -129,13 +130,13 @@ public class TeleportManager : IDisposable
 
     private string GetAetheryteName(IAetheryteEntry aetheryte)
     {
-        var gameData = aetheryte.AetheryteData.GameData;
-        var placeName = gameData?.PlaceName.Value;
+        var gameData = aetheryte.AetheryteData.Value;
+        var placeName = gameData.PlaceName.Value;
 
-        return placeName == null ? "[Name Lookup Failed]" : placeName.Name;
+        return string.IsNullOrEmpty(placeName.Name.ToString()) ? "[Name Lookup Failed]" : placeName.Name.ToString();
     }
 
-    private bool AetheryteUnlocked(ExcelRow aetheryte, out IAetheryteEntry? entry)
+    private bool AetheryteUnlocked(IExcelRow<AetheryteTransient> aetheryte, out IAetheryteEntry? entry)
     {
         if (Service.AetheryteList.Any(entry => entry.AetheryteId == aetheryte.RowId))
         {

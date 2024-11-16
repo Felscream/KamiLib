@@ -13,17 +13,17 @@ public static class PartyListExtensions
 
     public static IEnumerable<IPartyMember> WithRole(this IEnumerable<IPartyMember> list, uint roleID)
     {
-        return list.Where(member => member.ClassJob.GameData?.Role == roleID);
+        return list.Where(member => member.ClassJob.Value.Role == roleID);
     }
 
     public static IEnumerable<IPartyMember> WithJob(this IEnumerable<IPartyMember> list, uint jobID)
     {
-        return list.Where(member => member.ClassJob.Id == jobID);
+        return list.Where(member => member.ClassJob.RowId == jobID);
     }
 
     public static IEnumerable<IPartyMember> WithJob(this IEnumerable<IPartyMember> list, List<uint> jobList)
     {
-        return list.Where(member => jobList.Contains(member.ClassJob.Id));
+        return list.Where(member => jobList.Contains(member.ClassJob.RowId));
     }
 
     public static IEnumerable<IPartyMember> WithStatus(this IEnumerable<IPartyMember> list, uint statusID)

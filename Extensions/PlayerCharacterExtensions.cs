@@ -20,7 +20,7 @@ public static class PlayerCharacterExtensions
 
     public static bool HasOnlineStatus(this IPlayerCharacter character, uint statusId)
     {
-        return character.OnlineStatus.Id == statusId;
+        return character.OnlineStatus.RowId == statusId;
     }
 
     public static int StatusCount(this IPlayerCharacter character, List<uint> statusList)
@@ -37,7 +37,8 @@ public static class PlayerCharacterExtensions
     {
         var ownedObjects = Service.ObjectTable.Where(obj => obj.OwnerId == character.EntityId);
 
-        return ownedObjects.Any(obj => obj.ObjectKind == ObjectKind.BattleNpc && (obj as IBattleNpc)?.SubKind == (byte) BattleNpcSubKind.Pet);
+        return ownedObjects.Any(obj => obj.ObjectKind == ObjectKind.BattleNpc &&
+                                       (obj as IBattleNpc)?.SubKind == (byte)BattleNpcSubKind.Pet);
     }
 
     public static IEnumerable<IPlayerCharacter> Alive(this IEnumerable<IPlayerCharacter> list)
@@ -47,12 +48,12 @@ public static class PlayerCharacterExtensions
 
     public static IEnumerable<IPlayerCharacter> WithJob(this IEnumerable<IPlayerCharacter> list, uint jobID)
     {
-        return list.Where(member => member.ClassJob.Id == jobID);
+        return list.Where(member => member.ClassJob.RowId == jobID);
     }
 
     public static IEnumerable<IPlayerCharacter> WithJob(this IEnumerable<IPlayerCharacter> list, List<uint> jobList)
     {
-        return list.Where(member => jobList.Contains(member.ClassJob.Id));
+        return list.Where(member => jobList.Contains(member.ClassJob.RowId));
     }
 
     public static IEnumerable<IPlayerCharacter> WithStatus(this IEnumerable<IPlayerCharacter> list, uint statusID)
@@ -60,7 +61,8 @@ public static class PlayerCharacterExtensions
         return list.Where(member => member.HasStatus(statusID));
     }
 
-    public static IEnumerable<IPlayerCharacter> WithStatus(this IEnumerable<IPlayerCharacter> list, List<uint> statusList)
+    public static IEnumerable<IPlayerCharacter> WithStatus(
+        this IEnumerable<IPlayerCharacter> list, List<uint> statusList)
     {
         return list.Where(member => member.HasStatus(statusList));
     }
