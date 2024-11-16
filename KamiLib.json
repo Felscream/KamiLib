@@ -1,0 +1,13 @@
+{
+    "Author": "MidoriKami",
+    "Name": "DragoonMayCry",
+    "Punchline": "Fork of kamilib",
+    "Description": "A Fork of kamilib.",
+    "ApplicableVersion": "any",
+    "LoadPriority": 0,
+    "InternalName": "KamiLib",
+    "AssemblyVersion": "1.2.1.1",
+    "RepoUrl": "https://github.com/Felscream/KamiLib",
+    "Tags": [],
+    "DalamudApiLevel": 11
+}
