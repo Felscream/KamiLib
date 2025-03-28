@@ -34,7 +34,7 @@ public static class AtkValueHelper
                 Service.PluginLog.Debug($"[{index:D3}] [{"vector", 7}]: No Representation Implemented");
                 break;
             default:                        
-                Service.PluginLog.Debug($"[{index:D3}] [{"unknown", 7}]: [{value.Type}]: {BitConverter.ToString(BitConverter.GetBytes((long)value.String)).Replace("-", " ")}");
+                Service.PluginLog.Debug($"[{index:D3}] [{"unknown", 7}]: [{value.Type}]: {BitConverter.ToString(BitConverter.GetBytes((long)value.String.Value)).Replace("-", " ")}");
                 break;
         }
     }
