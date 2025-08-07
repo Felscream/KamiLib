@@ -1,48 +1,52 @@
-﻿using System.Diagnostics;
-using ImGuiNET;
+﻿#region
+
+using Dalamud.Bindings.ImGui;
 using KamiLib.Drawing;
+using System.Diagnostics;
 
-namespace KamiLib.Misc;
+#endregion
 
-
-public class PluginVersion
+namespace KamiLib.Misc
 {
-    private static PluginVersion? _instance;
-    public static PluginVersion Instance => _instance ??= new PluginVersion();
+    public class PluginVersion
+    {
+        private static PluginVersion? _instance;
 
-    private readonly string versionText;
-    
-    private PluginVersion()
-    {
-        versionText = GetVersionText();
-    }
-    
-    private static string GetVersionText()
-    {
-        foreach (var frame in new StackTrace().GetFrames())
+        private readonly string versionText;
+
+        private PluginVersion()
         {
-            var assembly = frame.GetMethod()?.DeclaringType?.Assembly;
+            versionText = GetVersionText();
+        }
+        public static PluginVersion Instance => _instance ??= new PluginVersion();
 
-            if (assembly?.GetName().Name == KamiCommon.PluginName)
+        private static string GetVersionText()
+        {
+            foreach (var frame in new StackTrace().GetFrames())
             {
-                var assemblyInformation = assembly.FullName!.Split(',');
+                var assembly = frame.GetMethod()?.DeclaringType?.Assembly;
 
-                return assemblyInformation[1].Replace('=', ' ');
+                if (assembly?.GetName().Name == KamiCommon.PluginName)
+                {
+                    var assemblyInformation = assembly.FullName!.Split(',');
+
+                    return assemblyInformation[1].Replace('=', ' ');
+                }
             }
+
+            return "Unable to Read Assembly";
         }
 
-        return "Unable to Read Assembly";
-    }
-    
-    public void DrawVersionText()
-    {
-        var region = ImGui.GetContentRegionAvail();
+        public void DrawVersionText()
+        {
+            var region = ImGui.GetContentRegionAvail();
 
-        var versionTextSize = ImGui.CalcTextSize(versionText) / 2.0f;
-        var cursorStart = ImGui.GetCursorPos();
-        cursorStart.X += region.X / 2.0f - versionTextSize.X;
+            var versionTextSize = ImGui.CalcTextSize(versionText) / 2.0f;
+            var cursorStart = ImGui.GetCursorPos();
+            cursorStart.X += region.X / 2.0f - versionTextSize.X;
 
-        ImGui.SetCursorPos(cursorStart);
-        ImGui.TextColored(Colors.Grey, versionText);
+            ImGui.SetCursorPos(cursorStart);
+            ImGui.TextColored(Colors.Grey, versionText);
+        }
     }
 }

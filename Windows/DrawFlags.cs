@@ -1,19 +1,24 @@
-﻿using ImGuiNET;
+﻿#region
 
-namespace KamiLib.Windows;
+using Dalamud.Bindings.ImGui;
 
-public static class DrawFlags
+#endregion
+
+namespace KamiLib.Windows
 {
-    public const ImGuiWindowFlags AutoResize = ImGuiWindowFlags.NoFocusOnAppearing |
-                                               ImGuiWindowFlags.NoTitleBar |
-                                               ImGuiWindowFlags.NoScrollbar |
-                                               ImGuiWindowFlags.NoCollapse |
-                                               ImGuiWindowFlags.AlwaysAutoResize;
+    public static class DrawFlags
+    {
+        public const ImGuiWindowFlags AutoResize = ImGuiWindowFlags.NoFocusOnAppearing |
+                                                   ImGuiWindowFlags.NoTitleBar |
+                                                   ImGuiWindowFlags.NoScrollbar |
+                                                   ImGuiWindowFlags.NoCollapse |
+                                                   ImGuiWindowFlags.AlwaysAutoResize;
 
-    public const ImGuiWindowFlags ManualSize = ImGuiWindowFlags.NoFocusOnAppearing |
-                                               ImGuiWindowFlags.NoTitleBar |
-                                               ImGuiWindowFlags.NoCollapse;
+        public const ImGuiWindowFlags ManualSize = ImGuiWindowFlags.NoFocusOnAppearing |
+                                                   ImGuiWindowFlags.NoTitleBar |
+                                                   ImGuiWindowFlags.NoCollapse;
 
-    public const ImGuiWindowFlags LockPosition = ImGuiWindowFlags.NoMove |
-                                                 ImGuiWindowFlags.NoResize;
+        public const ImGuiWindowFlags LockPosition = ImGuiWindowFlags.NoMove |
+                                                     ImGuiWindowFlags.NoResize;
+    }
 }

@@ -1,115 +1,122 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
-using ImGuiNET;
+﻿#region
+
+using Dalamud.Bindings.ImGui;
 using KamiLib.Interfaces;
+using System.Collections.Generic;
+using System.Numerics;
 
-namespace KamiLib.Drawing;
+#endregion
 
-public class InfoBoxTable
+namespace KamiLib.Drawing
 {
-    private readonly InfoBox owner;
-    private readonly float weight;
-
-    private readonly List<InfoBoxTableRow> rows = new();
-    private string emptyListString = string.Empty;
-
-    public InfoBoxTable(InfoBox owner, float weight = 0.5f)
+    public class InfoBoxTable
     {
-        this.owner = owner;
-        this.weight = weight;
-    }
+        private readonly InfoBox owner;
 
-    public InfoBoxTableRow BeginRow()
-    {
-        return new InfoBoxTableRow(this);
-    }
+        private readonly List<InfoBoxTableRow> rows = new();
+        private readonly float weight;
+        private string emptyListString = string.Empty;
 
-    public InfoBoxTable AddRow(InfoBoxTableRow row)
-    {
-        rows.Add(row);
-
-        return this;
-    }
-
-    public InfoBox EndTable()
-    {
-        owner.AddAction(() =>
+        public InfoBoxTable(InfoBox owner, float weight = 0.5f)
         {
-            if (rows.Count == 0)
-            {
-                if (emptyListString != string.Empty)
-                {
-                    ImGui.TextColored(Colors.Orange, emptyListString);
-                }
-            }
-            else
-            {
-                if (ImGui.BeginTable($"", 2, ImGuiTableFlags.None, new Vector2(owner.InnerWidth, 0)))
-                {
-                    ImGui.TableSetupColumn("", ImGuiTableColumnFlags.None, 1f * (weight));
-                    ImGui.TableSetupColumn("", ImGuiTableColumnFlags.None, 1f * (1 - weight));
+            this.owner = owner;
+            this.weight = weight;
+        }
 
-                    foreach (var row in rows)
+        public InfoBoxTableRow BeginRow()
+        {
+            return new InfoBoxTableRow(this);
+        }
+
+        public InfoBoxTable AddRow(InfoBoxTableRow row)
+        {
+            rows.Add(row);
+
+            return this;
+        }
+
+        public InfoBox EndTable()
+        {
+            owner.AddAction(() =>
+            {
+                if (rows.Count == 0)
+                {
+                    if (emptyListString != string.Empty)
                     {
-                        ImGui.TableNextColumn();
+                        ImGui.TextColored(Colors.Orange, emptyListString);
+                    }
+                }
+                else
+                {
+                    if (ImGui.BeginTable($"", 2, ImGuiTableFlags.None, new Vector2(owner.InnerWidth, 0)))
+                    {
+                        ImGui.TableSetupColumn("", ImGuiTableColumnFlags.None, 1f * weight);
+                        ImGui.TableSetupColumn("", ImGuiTableColumnFlags.None, 1f * (1 - weight));
 
-                        ImGui.PushTextWrapPos(GetWrapPosition());
-                        row.FirstColumn?.Invoke();
-                        ImGui.PopTextWrapPos();
+                        foreach (var row in rows)
+                        {
+                            ImGui.TableNextColumn();
 
-                        ImGui.TableNextColumn();
-                        ImGui.PushTextWrapPos(GetWrapPosition());
-                        row.SecondColumn?.Invoke();
-                        ImGui.PopTextWrapPos();
+                            ImGui.PushTextWrapPos(GetWrapPosition());
+                            row.FirstColumn?.Invoke();
+                            ImGui.PopTextWrapPos();
+
+                            ImGui.TableNextColumn();
+                            ImGui.PushTextWrapPos(GetWrapPosition());
+                            row.SecondColumn?.Invoke();
+                            ImGui.PopTextWrapPos();
+                        }
+
+                        ImGui.EndTable();
                     }
 
-                    ImGui.EndTable();
                 }
+            });
 
+            return owner;
+        }
+
+        private static float GetWrapPosition()
+        {
+            var region = ImGui.GetContentRegionAvail();
+
+            var cursor = ImGui.GetCursorPos();
+
+            var wrapPosition = cursor.X + region.X;
+
+            return wrapPosition;
+        }
+
+        public InfoBoxTable AddConfigurationRows(
+            IEnumerable<IInfoBoxTableConfigurationRow> configurableRows, string? emptyEnumerableString = null)
+        {
+            if (emptyEnumerableString is not null)
+            {
+                emptyListString = emptyEnumerableString;
             }
-        });
 
-        return owner;
-    }
+            foreach (var row in configurableRows)
+            {
+                row.GetConfigurationRow(this);
+            }
 
-    private static float GetWrapPosition()
-    {
-        var region = ImGui.GetContentRegionAvail();
-
-        var cursor = ImGui.GetCursorPos();
-
-        var wrapPosition = cursor.X + region.X;
-
-        return wrapPosition;
-    }
-
-    public InfoBoxTable AddConfigurationRows(IEnumerable<IInfoBoxTableConfigurationRow> configurableRows, string? emptyEnumerableString = null)
-    {
-        if(emptyEnumerableString is not null)
-        {
-            emptyListString = emptyEnumerableString;
+            return this;
         }
 
-        foreach (var row in configurableRows)
+        public InfoBoxTable AddDataRows(
+            IEnumerable<IInfoBoxTableDataRow> dataRows, string? emptyEnumerableString = null)
         {
-            row.GetConfigurationRow(this);
+            if (emptyEnumerableString is not null)
+            {
+                emptyListString = emptyEnumerableString;
+            }
+
+            foreach (var row in dataRows)
+            {
+                row.GetDataRow(this);
+            }
+
+            return this;
         }
-
-        return this;
-    }
-
-    public InfoBoxTable AddDataRows(IEnumerable<IInfoBoxTableDataRow> dataRows, string? emptyEnumerableString = null)
-    {
-        if(emptyEnumerableString is not null)
-        {
-            emptyListString = emptyEnumerableString;
-        }
-
-        foreach (var row in dataRows)
-        {
-            row.GetDataRow(this);
-        }
-
-        return this;
     }
 }

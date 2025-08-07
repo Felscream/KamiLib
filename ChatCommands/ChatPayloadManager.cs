@@ -1,47 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#region
+
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace KamiLib.ChatCommands;
+#endregion
 
-internal record ChatLinkPayload(uint CommandID, uint Type, DalamudLinkPayload Payload);
-
-public class ChatPayloadManager : IDisposable
+namespace KamiLib.ChatCommands
 {
-    private static ChatPayloadManager? _instance;
-    public static ChatPayloadManager Instance => _instance ??= new ChatPayloadManager();
+    internal record ChatLinkPayload(uint CommandID, uint Type, DalamudLinkPayload Payload);
 
-    private List<ChatLinkPayload> ChatLinkPayloads { get; } = new();
+    public class ChatPayloadManager : IDisposable
+    {
+        private static ChatPayloadManager? _instance;
+        public static ChatPayloadManager Instance => _instance ??= new ChatPayloadManager();
 
-    public static void Cleanup()
-    {
-        _instance?.Dispose();
-    }
-    
-    public void Dispose()
-    {
-        foreach (var payload in ChatLinkPayloads)
+        private List<ChatLinkPayload> ChatLinkPayloads { get; } = new();
+
+        public void Dispose()
         {
-            Service.PluginInterface.RemoveChatLinkHandler( payload.Type + 1000 );
+            foreach (var payload in ChatLinkPayloads)
+            {
+                Service.Chat.RemoveChatLinkHandler(payload.Type + 1000);
+            }
         }
-    }
 
-    public DalamudLinkPayload AddChatLink(Enum type, Action<uint, SeString> payloadAction) => AddChatLink(Convert.ToUInt32(type), payloadAction);
+        public static void Cleanup()
+        {
+            _instance?.Dispose();
+        }
 
-    private DalamudLinkPayload AddChatLink(uint type, Action<uint, SeString> payloadAction)
-    {
-        // If the payload is already registered
-        var payload = ChatLinkPayloads.FirstOrDefault(linkPayload => linkPayload.CommandID == type + 1000)?.Payload;
-        if (payload != null) return payload;
+        public DalamudLinkPayload AddChatLink(Enum type, Action<uint, SeString> payloadAction)
+        {
+            return AddChatLink(Convert.ToUInt32(type), payloadAction);
+        }
 
-        // else
-        Service.PluginInterface.RemoveChatLinkHandler(type + 1000);
-        payload = Service.PluginInterface.AddChatLinkHandler(type + 1000, payloadAction);
+        private DalamudLinkPayload AddChatLink(uint type, Action<uint, SeString> payloadAction)
+        {
+            // If the payload is already registered
+            var payload = ChatLinkPayloads.FirstOrDefault(linkPayload => linkPayload.CommandID == type + 1000)?.Payload;
+            if (payload != null) return payload;
 
-        ChatLinkPayloads.Add(new ChatLinkPayload(type + 1000, type, payload));
+            // else
+            Service.Chat.RemoveChatLinkHandler(type + 1000);
+            payload = Service.Chat.AddChatLinkHandler(type + 1000, payloadAction);
 
-        return payload;
+            ChatLinkPayloads.Add(new ChatLinkPayload(type + 1000, type, payload));
+
+            return payload;
+        }
     }
 }

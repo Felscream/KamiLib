@@ -1,61 +1,65 @@
-﻿using System;
-using Dalamud.Game;
+﻿#region
+
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+using System;
+
+#endregion
+
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 
-namespace KamiLib.UserInterface;
-
-public unsafe class GameUserInterface : IDisposable
+namespace KamiLib.UserInterface
 {
-    public event EventHandler? UiHidden;
-    public event EventHandler? UiShown;
-
-    private static GameUserInterface? _instance;
-    public static GameUserInterface Instance => _instance ??= new GameUserInterface();
-
-    public bool IsVisible => !lastState;
-    private bool lastState;
-    
-    private GameUserInterface()
+    public class GameUserInterface : IDisposable
     {
-        Service.Framework.Update += FrameworkUpdate;
-    }
-        
-    public static void Cleanup()
-    {
-        _instance?.Dispose();
-    }
 
-    public void Dispose()
-    {
-        Service.Framework.Update -= FrameworkUpdate;
-    }
+        private static GameUserInterface? _instance;
+        private bool lastState;
 
-    private void FrameworkUpdate(IFramework framework)
-    {
-        var partyList = (AtkUnitBase*) Service.GameGui.GetAddonByName("_PartyList");
-        var todoList = (AtkUnitBase*) Service.GameGui.GetAddonByName("_ToDoList");
-        var enemyList = (AtkUnitBase*) Service.GameGui.GetAddonByName("_EnemyList");
-
-        var partyListVisible = partyList != null && partyList->IsVisible;
-        var todoListVisible = todoList != null && todoList->IsVisible;
-        var enemyListVisible = enemyList != null && enemyList->IsVisible;
-
-        var shouldHideUi = !partyListVisible && !todoListVisible && !enemyListVisible;
-
-        if (lastState != shouldHideUi)
+        private GameUserInterface()
         {
-            if (shouldHideUi)
-            {
-                UiHidden?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                UiShown?.Invoke(this, EventArgs.Empty);
-            }
+            Service.Framework.Update += FrameworkUpdate;
+        }
+        public static GameUserInterface Instance => _instance ??= new GameUserInterface();
+
+        public bool IsVisible => !lastState;
+
+        public void Dispose()
+        {
+            Service.Framework.Update -= FrameworkUpdate;
+        }
+        public event EventHandler? UiHidden;
+        public event EventHandler? UiShown;
+
+        public static void Cleanup()
+        {
+            _instance?.Dispose();
         }
 
-        lastState = shouldHideUi;
+        private void FrameworkUpdate(IFramework framework)
+        {
+            var partyList = Service.GameGui.GetAddonByName("_PartyList");
+            var todoList = Service.GameGui.GetAddonByName("_ToDoList");
+            var enemyList = Service.GameGui.GetAddonByName("_EnemyList");
+
+            var partyListVisible = partyList != null && partyList.IsVisible;
+            var todoListVisible = todoList != null && todoList.IsVisible;
+            var enemyListVisible = enemyList != null && enemyList.IsVisible;
+
+            var shouldHideUi = !partyListVisible && !todoListVisible && !enemyListVisible;
+
+            if (lastState != shouldHideUi)
+            {
+                if (shouldHideUi)
+                {
+                    UiHidden?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    UiShown?.Invoke(this, EventArgs.Empty);
+                }
+            }
+
+            lastState = shouldHideUi;
+        }
     }
 }
