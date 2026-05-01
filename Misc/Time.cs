@@ -83,7 +83,7 @@ public static class Time
 
     public static DateTime NextJumboCactpotReset()
     {
-        var region = LookupDatacenterRegion(Service.ClientState.LocalPlayer?.HomeWorld.Value.DataCenter.RowId);
+        var region = LookupDatacenterRegion(Service.PlayerState.HomeWorld.Value.DataCenter.RowId);
 
         return region switch
         {
@@ -104,13 +104,13 @@ public static class Time
         };
     }
 
-    private static byte LookupDatacenterRegion(uint? playerDatacenterID)
+    private static uint LookupDatacenterRegion(uint? playerDatacenterID)
     {
         if (playerDatacenterID == null) return 0;
 
         return LuminaCache<WorldDCGroupType>.Instance
                                             .Where(world => world.RowId == playerDatacenterID.Value)
-                                            .Select(dc => dc.Region)
+                                            .Select(dc => dc.Region.RowId)
                                             .FirstOrDefault();
     }
 }

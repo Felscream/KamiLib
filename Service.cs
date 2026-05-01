@@ -12,6 +12,7 @@ internal class Service
     [PluginService] public static IPluginLog PluginLog { get; private set; } = null!;
     [PluginService] public static DalamudCommandManager Commands { get; private set; } = null!;
     [PluginService] public static IClientState ClientState { get; private set; } = null!;
+    [PluginService] public static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] public static IChatGui Chat { get; private set; } = null!;
     [PluginService] public static IGameGui GameGui { get; private set; } = null!;
     [PluginService] public static DalamudCondition Condition { get; private set; } = null!;

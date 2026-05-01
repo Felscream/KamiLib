@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 
 namespace KamiLib.Atk;
 
